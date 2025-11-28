@@ -11,11 +11,15 @@
     disko.inputs.nixpkgs.follows = "nixpkgs";
   };
 
+
+
   outputs = { nixpkgs, disko, home-manager, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
     in {
+
+      packages."x86_64-linux".default = pkgs.hello;
 
       homeConfigurations."hey" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
