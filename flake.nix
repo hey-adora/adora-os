@@ -74,6 +74,8 @@
               networking.hostName = "adora"; # Define your hostname.
               networking.networkmanager.enable = true;
 
+              programs.zsh.enable = true;
+
               # Set your time zone.
               time.timeZone = "Europe/Paris";
 
