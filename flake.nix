@@ -69,6 +69,7 @@
               boot.loader.grub.enableCryptodisk = true;
               boot.loader.grub.efiSupport = true;
               boot.loader.grub.efiInstallAsRemovable = true;
+              boot.loader.efi.canTouchEfiVariables = false;
               boot.loader.efi.efiSysMountPoint = "/boot";
 
               networking.hostName = "adora"; # Define your hostname.
