@@ -64,7 +64,7 @@
               boot.initrd.enable = true;
               boot.initrd.systemd.enable = true;
               boot.loader.grub.enable = true;
-              boot.loader.grub.device = "/dev/vga";
+              boot.loader.grub.device = "/dev/vda";
               boot.loader.grub.useOSProber = true;
               boot.loader.grub.enableCryptodisk = true;
               boot.loader.grub.efiSupport = true;
@@ -108,21 +108,21 @@
           {
             disko.devices = {
               disk = {
+
                 main = {
-                  # When using disko-install, we will overwrite this value from the commandline
-                  device = "/dev/disk/by-id/some-disk-id";
                   type = "disk";
+                  device = "/dev/vda";
                   content = {
                     type = "gpt";
                     partitions = {
                       MBR = {
-                        type = "EF02"; # for grub MBR
                         size = "1M";
-                        priority = 1; # Needs to be first partition
+                        type = "EF02";
+                        priority = 1;
                       };
                       ESP = {
                         type = "EF00";
-                        size = "500M";
+                        size = "1G";
                         content = {
                           type = "filesystem";
                           format = "vfat";
@@ -130,17 +130,41 @@
                           mountOptions = [ "umask=0077" ];
                         };
                       };
-                      root = {
+                      luks = {
                         size = "100%";
                         content = {
-                          type = "filesystem";
-                          format = "ext4";
-                          mountpoint = "/";
+                          type = "luks";
+                          name = "crypted";
+                          extraFormatArgs = [ "--type luks1" ];
+                          settings = { allowDiscards = true; };
+                          content = {
+                            type = "btrfs";
+                            extraArgs = [ "-f" ];
+                            subvolumes = {
+                              root = {
+                                mountpoint = "/";
+                                mountOptions = [ "compress=zstd" "noatime" ];
+                              };
+                              home = {
+                                mountpoint = "/home";
+                                mountOptions = [ "compress=zstd" "noatime" ];
+                              };
+                              nix = {
+                                mountpoint = "/nix";
+                                mountOptions = [ "compress=zstd" "noatime" ];
+                              };
+                              swap = {
+                                mountpoint = "/.swapvol";
+                                swap.swapfile.size = "20M";
+                              };
+                            };
+                          };
                         };
                       };
                     };
                   };
                 };
+
               };
             };
           }
