@@ -20,7 +20,7 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      target = "/dev/vda";
+      target = "/dev/nbd0";
       time = "Europe/Paris";
       hostname = "adora";
       user = "hey";
@@ -185,7 +185,7 @@
         ];
       };
 
-      nixosConfigurations.main = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.adoraos = nixpkgs.lib.nixosSystem {
         system = "${system}";
         specialArgs = { inherit inputs; };
         modules = [
@@ -212,43 +212,45 @@
               zramSwap.enable = true;
               zramSwap.memoryPercent = 150;
 
-              hardware.nvidia.open = true;
-              hardware.nvidia.nvidiaSettings = true;
-              hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_480;
-              hardware.nvidia.modesetting.enable = true;
-              hardware.nvidia.powerManagement.enable = true;
+              # hardware.nvidia.open = true;
+              # hardware.nvidia.nvidiaSettings = true;
+              # hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_480;
+              # hardware.nvidia.modesetting.enable = true;
+              # hardware.nvidia.powerManagement.enable = true;
 
-              hardware.graphics.enable = true;
-              hardware.graphics.enable32Bit = true;
-              hardware.graphics.extraPackages = with pkgs; [
-                mesa.opencl
-                nvidia-vaapi-driver
-                intel-media-driver
-                intel-vaapi-driver
-                libvdpau-va-gl
-              ];
-              hardware.graphics.extraPackages32 = with pkgs.pkgsi686Linux; [ intel-vaapi-driver ];
+              # hardware.graphics.enable = true;
+              # hardware.graphics.enable32Bit = true;
+              # hardware.graphics.extraPackages = with pkgs; [
+              #   mesa.opencl
+              #   nvidia-vaapi-driver
+              #   intel-media-driver
+              #   intel-vaapi-driver
+              #   libvdpau-va-gl
+              # ];
+              # hardware.graphics.extraPackages32 = with pkgs.pkgsi686Linux; [ intel-vaapi-driver ];
 
-              boot.kernelPackages = pkgs.linuxPackages_latest;
-              boot.kernelParams = [
-                "radeon.si_support=0"
-                "amdgpu.si_support=1"
-                "radeon.cik_support=0"
-                "amdgpu.cik_support=1"
-                "drm.panic_screen=qr_code"
-              ];
+              # boot.kernelPackages = pkgs.linuxPackages_latest;
+              # boot.kernelParams = [
+              #   "radeon.si_support=0"
+              #   "amdgpu.si_support=1"
+              #   "radeon.cik_support=0"
+              #   "amdgpu.cik_support=1"
+              #   "drm.panic_screen=qr_code"
+              # ];
 
-              services.pipewire.enable = true;
-              services.pipewire.pulse.enable = true;
-              services.pipewire.alsa.enable = true;
-              services.pipewire.alsa.support32Bit = true;
-              services.pipewire.jack.enable = true;
-              services.libinput.enable = true;
+              # services.pipewire.enable = true;
+              # services.pipewire.pulse.enable = true;
+              # services.pipewire.alsa.enable = true;
+              # services.pipewire.alsa.support32Bit = true;
+              # services.pipewire.jack.enable = true;
+              # services.libinput.enable = true;
 
               boot.kernel.sysctl."kernel.sysrq" = 1;
-              boot.crashDump.enable = true;
-              boot.initrd.enable = true;
-              boot.initrd.systemd.enable = true;
+
+              # boot.crashDump.enable = true;
+              # boot.initrd.enable = true;
+              # boot.initrd.systemd.enable = true;
+
               boot.loader.grub.enable = true;
               boot.loader.grub.device = "${target}";
               boot.loader.grub.useOSProber = true;
@@ -262,20 +264,20 @@
               networking.networkmanager.enable = true;
               hardware.bluetooth.enable = true;
 
-              services.desktopManager.plasma6.enable = true;
-              services.displayManager.sddm.enable = true;
-              services.displayManager.sddm.wayland.enable = true;
+              # services.desktopManager.plasma6.enable = true;
+              # services.displayManager.sddm.enable = true;
+              # services.displayManager.sddm.wayland.enable = true;
 
               programs.zsh.enable = true;
 
-              users.groups.libvirtd.members = [ "${user}" ];
-              virtualisation.libvirtd.enable = true;
-              programs.virt-manager.enable = true;
+              # users.groups.libvirtd.members = [ "${user}" ];
+              # virtualisation.libvirtd.enable = true;
+              # programs.virt-manager.enable = true;
 
               time.timeZone = "${time}";
 
               i18n.defaultLocale = "en_US.UTF-8";
-              i18n.extraLocales = [ "ja_JP.UTF-8/UTF-8" ];
+              # i18n.extraLocales = [ "ja_JP.UTF-8/UTF-8" ];
               console = {
                 font = "Lat2-Terminus16";
                 keyMap = "us";
@@ -295,7 +297,7 @@
               };
 
               environment.systemPackages = with pkgs; [ neovim ];
-              environment.variables."RUSTICL_ENABLE" = "radeonsi";
+              # environment.variables."RUSTICL_ENABLE" = "radeonsi";
 
               system.stateVersion = "25.11";
 
@@ -305,8 +307,7 @@
           {
             disko.devices = {
               disk = {
-
-                main = {
+                adoraos = {
                   type = "disk";
                   device = "${target}";
                   content = {
@@ -331,7 +332,7 @@
                         size = "100%";
                         content = {
                           type = "luks";
-                          name = "crypted";
+                          name = "crypted_adoraos";
                           extraFormatArgs = [ "--type luks1" ];
                           settings = {
                             allowDiscards = true;
@@ -355,5 +356,3 @@
 
     };
 }
-
-#lrwxrwxrwx 1 root root 79 Jan  1  1970 /nix/var/nix/profiles/per-user/root/channels/nixos -> /nix/store/2khx1dqp2hr4wfmpbn1jmw8q8ypzrd99-nixos-25.11.4506.078d69f03934/nixos
