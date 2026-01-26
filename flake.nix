@@ -1,6 +1,4 @@
 {
-  description = "Home Manager configuration of hey";
-
   inputs = {
     # nixpkgs.url = "path:/nix/var/nix/profiles/per-user/root/channels/nixos/";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -22,9 +20,14 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
+      target = "/dev/vda";
+      time = "Europe/Paris";
+      hostname = "adora";
+      user = "hey";
+      email = "146812294+hey-adora@users.noreply.github.com";
     in
     {
-      homeConfigurations."hey" = inputs.home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."${user}" = inputs.home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
         extraSpecialArgs = { inherit nixpkgs system inputs; };
@@ -48,8 +51,8 @@
 
               programs.home-manager.enable = true;
               nixpkgs.config.allowUnfree = true;
-              home.username = "hey";
-              home.homeDirectory = "/home/hey";
+              home.username = "${user}";
+              home.homeDirectory = "/home/${user}";
 
               systemd.user.startServices = true;
               home.shellAliases."ll" = "eza -lhag";
@@ -109,8 +112,8 @@
 
               programs.neovim.enable = true;
               xdg.configFile."nvim".enable = true;
-              # xdg.configFile."nvim".source = "/home/hey/.config/home-manager/nvim";
-              xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "/home/hey/dotfile/nvim";
+              # xdg.configFile."nvim".source = "/home/${user}/.config/home-manager/nvim";
+              xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "/home/${user}/dotfile/nvim";
               programs.neovim.plugins = with pkgs.vimPlugins; [
                 catppuccin-nvim
                 telescope-nvim
@@ -167,8 +170,8 @@
 
               # git
               programs.git.enable = true;
-              programs.git.settings.user.name = "hey";
-              programs.git.settings.user.email = "146812294+hey-adora@users.noreply.github.com";
+              programs.git.settings.user.name = "${user}";
+              programs.git.settings.user.email = "${email}";
               programs.git.settings.extraConfig.safe.directory = "*";
 
               # atuin
@@ -182,8 +185,8 @@
         ];
       };
 
-      nixosConfigurations.adora = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+      nixosConfigurations.main = nixpkgs.lib.nixosSystem {
+        system = "${system}";
         specialArgs = { inherit inputs; };
         modules = [
           (
@@ -247,7 +250,7 @@
               boot.initrd.enable = true;
               boot.initrd.systemd.enable = true;
               boot.loader.grub.enable = true;
-              boot.loader.grub.device = "/dev/vda";
+              boot.loader.grub.device = "${target}";
               boot.loader.grub.useOSProber = true;
               boot.loader.grub.enableCryptodisk = true;
               boot.loader.grub.efiSupport = true;
@@ -255,7 +258,7 @@
               boot.loader.efi.canTouchEfiVariables = false;
               boot.loader.efi.efiSysMountPoint = "/boot";
 
-              networking.hostName = "adora";
+              networking.hostName = "${hostname}";
               networking.networkmanager.enable = true;
               hardware.bluetooth.enable = true;
 
@@ -265,11 +268,11 @@
 
               programs.zsh.enable = true;
 
-              users.groups.libvirtd.members = [ "hey" ];
+              users.groups.libvirtd.members = [ "${user}" ];
               virtualisation.libvirtd.enable = true;
               programs.virt-manager.enable = true;
 
-              time.timeZone = "Europe/Paris";
+              time.timeZone = "${time}";
 
               i18n.defaultLocale = "en_US.UTF-8";
               i18n.extraLocales = [ "ja_JP.UTF-8/UTF-8" ];
@@ -283,7 +286,7 @@
                 noto-fonts-color-emoji
               ];
 
-              users.users.hey = {
+              users.users."${user}" = {
                 initialPassword = "home";
                 isNormalUser = true;
                 extraGroups = [ "wheel" ];
@@ -305,7 +308,7 @@
 
                 main = {
                   type = "disk";
-                  device = "/dev/vda";
+                  device = "${target}";
                   content = {
                     type = "gpt";
                     partitions = {
