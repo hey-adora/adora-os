@@ -20,11 +20,11 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      target = "/dev/nbd0";
+      target = "/dev/sda";
       time = "Europe/Paris";
-      hostname = "adora";
-      user = "hey";
-      email = "146812294+hey-adora@users.noreply.github.com";
+      hostname = "qqq-pc";
+      user = "qqq";
+      email = "example@email.com";
 
       # minimalBase = {
       #   isoImage.squashfsCompression = "gzip -Xcompression-level 1";
