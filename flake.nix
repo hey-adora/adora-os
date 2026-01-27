@@ -25,6 +25,11 @@
       hostname = "adora";
       user = "hey";
       email = "146812294+hey-adora@users.noreply.github.com";
+
+      # minimalBase = {
+      #   isoImage.squashfsCompression = "gzip -Xcompression-level 1";
+      #   systemd.services.sshd.wantedBy = inputs.nixpkgs.lib.mkForce [ "multi-user.target" ];
+      # };
     in
     {
       homeConfigurations."${user}" = inputs.home-manager.lib.homeManagerConfiguration {
@@ -186,9 +191,20 @@
       };
 
       nixosConfigurations.adoraos = nixpkgs.lib.nixosSystem {
+
         system = "${system}";
         specialArgs = { inherit inputs; };
+        # minimalIso = inputs.nixpkgs.lib.nixosSystem {
+        #   system = "x86_64-linux";
+        #   modules = [
+        #     "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+        #     minimalBase
+        #   ];
+        # };
         modules = [
+          # "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+          # minimalBase
+          disko.nixosModules.disko
           (
             {
               config,
@@ -330,10 +346,13 @@
                       };
                       luks = {
                         size = "100%";
+                        type = "luks";
+                        # name = "disk-adoraos-luks";
                         content = {
                           type = "luks";
-                          name = "crypted_adoraos";
+                          name = "crypted";
                           extraFormatArgs = [ "--type luks1" ];
+                          # passwordFile = "/tmp/pss.txt";
                           settings = {
                             allowDiscards = true;
                           };
