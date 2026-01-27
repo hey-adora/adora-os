@@ -5,14 +5,14 @@
     #nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11/2khx1dqp2hr4wfmpbn1jmw8q8ypzrd99";
     # nixpkgs.url = "path:/nix/store/2khx1dqp2hr4wfmpbn1jmw8q8ypzrd99-nixos-25.11.4506.078d69f03934/nixos";
 
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    # home-manager.url = "github:nix-community/home-manager";
+    # home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     disko.url = "github:nix-community/disko/latest";
     disko.inputs.nixpkgs.follows = "nixpkgs";
 
-    helium.url = "github:AlvaroParker/helium-nix";
-    helium.inputs.nixpkgs.follows = "nixpkgs";
+    # helium.url = "github:AlvaroParker/helium-nix";
+    # helium.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -32,163 +32,163 @@
       # };
     in
     {
-      homeConfigurations."${user}" = inputs.home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-
-        extraSpecialArgs = { inherit nixpkgs system inputs; };
-
-        modules = [
-          (
-
-            {
-              lib,
-              config,
-              nixpkgs,
-              pkgs,
-              system,
-              inputs,
-              ...
-            }:
-
-            with lib.hm.gvariant;
-
-            {
-
-              programs.home-manager.enable = true;
-              nixpkgs.config.allowUnfree = true;
-              home.username = "${user}";
-              home.homeDirectory = "/home/${user}";
-
-              systemd.user.startServices = true;
-              home.shellAliases."ll" = "eza -lhag";
-              home.shell.enableShellIntegration = true;
-              home.enableDebugInfo = false;
-
-              home.stateVersion = "25.11";
-              home.packages =
-                with pkgs;
-                [
-                  firefox
-                  nixfmt
-                  lua-language-server
-
-                  # sys tools
-                  smartmontools
-                  eza
-
-                ]
-                ++ [ inputs.helium.packages."${system}".default ];
-
-              home.sessionVariables = {
-                QT_QPA_PLATFORM = "wayland";
-                EDITOR = "nvim";
-              };
-
-              xdg.enable = true;
-              xdg.mime.enable = true;
-              xdg.mimeApps.enable = false;
-
-              i18n.inputMethod.enable = true;
-              i18n.inputMethod.type = "fcitx5";
-              i18n.inputMethod.fcitx5.waylandFrontend = true;
-              i18n.inputMethod.fcitx5.addons = with pkgs; [
-                fcitx5-mozc
-                fcitx5-gtk
-                kdePackages.fcitx5-qt
-                fcitx5-tokyonight
-              ];
-              # i18n.inputMethod.ibus.engines = with pkgs.ibus-engines; [ mozc ];
-
-              fonts.fontconfig.enable = true;
-              fonts.fontconfig.defaultFonts.serif = [ "Noto Serif" ];
-              fonts.fontconfig.defaultFonts.sansSerif = [ "Noto Sans" ];
-              fonts.fontconfig.defaultFonts.monospace = [
-                "Noto Sans Mono"
-                "Symbola"
-              ];
-              fonts.fontconfig.defaultFonts.emoji = [ "Noto Color Emoji" ];
-
-              programs.alacritty.enable = true;
-
-              # zellij
-              programs.zellij.enable = true;
-              programs.zellij.enableZshIntegration = true;
-              programs.zellij.settings."theme" = "catppuccin-frappe";
-
-              programs.neovim.enable = true;
-              xdg.configFile."nvim".enable = true;
-              # xdg.configFile."nvim".source = "/home/${user}/.config/home-manager/nvim";
-              xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "/home/${user}/dotfile/nvim";
-              programs.neovim.plugins = with pkgs.vimPlugins; [
-                catppuccin-nvim
-                telescope-nvim
-                nvim-treesitter.withAllGrammars
-                none-ls-nvim
-                nvim-lspconfig
-                nvim-cmp
-                luasnip
-                cmp_luasnip
-                friendly-snippets
-                cmp-nvim-lsp
-                # lsp-progress-nvim
-                lualine-nvim
-                trouble-nvim
-                plenary-nvim
-                harpoon2
-                smear-cursor-nvim
-                neoscroll-nvim
-                telescope-ui-select-nvim
-                # marks-nvim
-                nvim-treesitter-context
-                nvim-web-devicons
-                outline-nvim
-                neo-tree-nvim
-                marks-nvim
-
-              ];
-
-              # man
-              programs.man.enable = true;
-              programs.man.generateCaches = false;
-
-              # zsh
-              programs.zsh.enable = true;
-              programs.zsh.dotDir = "${config.xdg.configHome}/zsh";
-              programs.zsh.envExtra = ''
-                GTK_IM_MODULE="fcitx"
-                QT_IM_MODULE="fcitx"
-                SDL_IM_MODULE="fcitx"
-                XMODIFIERS="@im=fcitx"
-              '';
-              programs.zsh.enableCompletion = true;
-              programs.zsh.autosuggestion.enable = true;
-              programs.zsh.syntaxHighlighting.enable = true;
-              programs.zsh.oh-my-zsh.enable = true;
-              programs.zsh.oh-my-zsh.extraConfig = ''
-                DISABLE_MAGIC_FUNCTIONS="true"
-              '';
-              programs.zsh.oh-my-zsh.plugins = [ "git" ];
-              programs.zsh.oh-my-zsh.theme = "spaceship";
-              programs.zsh.oh-my-zsh.custom = "$HOME/.zsh-custom";
-              home.file.".zsh-custom/themes/spaceship.zsh-theme".source =
-                "${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme";
-
-              # git
-              programs.git.enable = true;
-              programs.git.settings.user.name = "${user}";
-              programs.git.settings.user.email = "${email}";
-              programs.git.settings.extraConfig.safe.directory = "*";
-
-              # atuin
-              programs.atuin.enable = true;
-              programs.atuin.daemon.enable = true;
-              programs.atuin.enableBashIntegration = true;
-              programs.atuin.enableZshIntegration = true;
-
-            }
-          )
-        ];
-      };
+      # homeConfigurations."${user}" = inputs.home-manager.lib.homeManagerConfiguration {
+      #   inherit pkgs;
+      #
+      #   extraSpecialArgs = { inherit nixpkgs system inputs; };
+      #
+      #   modules = [
+      #     (
+      #
+      #       {
+      #         lib,
+      #         config,
+      #         nixpkgs,
+      #         pkgs,
+      #         system,
+      #         inputs,
+      #         ...
+      #       }:
+      #
+      #       with lib.hm.gvariant;
+      #
+      #       {
+      #
+      #         programs.home-manager.enable = true;
+      #         nixpkgs.config.allowUnfree = true;
+      #         home.username = "${user}";
+      #         home.homeDirectory = "/home/${user}";
+      #
+      #         systemd.user.startServices = true;
+      #         home.shellAliases."ll" = "eza -lhag";
+      #         home.shell.enableShellIntegration = true;
+      #         home.enableDebugInfo = false;
+      #
+      #         home.stateVersion = "25.11";
+      #         home.packages =
+      #           with pkgs;
+      #           [
+      #             firefox
+      #             nixfmt
+      #             lua-language-server
+      #
+      #             # sys tools
+      #             smartmontools
+      #             eza
+      #
+      #           ]
+      #           ++ [ inputs.helium.packages."${system}".default ];
+      #
+      #         home.sessionVariables = {
+      #           QT_QPA_PLATFORM = "wayland";
+      #           EDITOR = "nvim";
+      #         };
+      #
+      #         xdg.enable = true;
+      #         xdg.mime.enable = true;
+      #         xdg.mimeApps.enable = false;
+      #
+      #         i18n.inputMethod.enable = true;
+      #         i18n.inputMethod.type = "fcitx5";
+      #         i18n.inputMethod.fcitx5.waylandFrontend = true;
+      #         i18n.inputMethod.fcitx5.addons = with pkgs; [
+      #           fcitx5-mozc
+      #           fcitx5-gtk
+      #           kdePackages.fcitx5-qt
+      #           fcitx5-tokyonight
+      #         ];
+      #         # i18n.inputMethod.ibus.engines = with pkgs.ibus-engines; [ mozc ];
+      #
+      #         fonts.fontconfig.enable = true;
+      #         fonts.fontconfig.defaultFonts.serif = [ "Noto Serif" ];
+      #         fonts.fontconfig.defaultFonts.sansSerif = [ "Noto Sans" ];
+      #         fonts.fontconfig.defaultFonts.monospace = [
+      #           "Noto Sans Mono"
+      #           "Symbola"
+      #         ];
+      #         fonts.fontconfig.defaultFonts.emoji = [ "Noto Color Emoji" ];
+      #
+      #         programs.alacritty.enable = true;
+      #
+      #         # zellij
+      #         programs.zellij.enable = true;
+      #         programs.zellij.enableZshIntegration = true;
+      #         programs.zellij.settings."theme" = "catppuccin-frappe";
+      #
+      #         programs.neovim.enable = true;
+      #         xdg.configFile."nvim".enable = true;
+      #         # xdg.configFile."nvim".source = "/home/${user}/.config/home-manager/nvim";
+      #         xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "/home/${user}/dotfile/nvim";
+      #         programs.neovim.plugins = with pkgs.vimPlugins; [
+      #           catppuccin-nvim
+      #           telescope-nvim
+      #           nvim-treesitter.withAllGrammars
+      #           none-ls-nvim
+      #           nvim-lspconfig
+      #           nvim-cmp
+      #           luasnip
+      #           cmp_luasnip
+      #           friendly-snippets
+      #           cmp-nvim-lsp
+      #           # lsp-progress-nvim
+      #           lualine-nvim
+      #           trouble-nvim
+      #           plenary-nvim
+      #           harpoon2
+      #           smear-cursor-nvim
+      #           neoscroll-nvim
+      #           telescope-ui-select-nvim
+      #           # marks-nvim
+      #           nvim-treesitter-context
+      #           nvim-web-devicons
+      #           outline-nvim
+      #           neo-tree-nvim
+      #           marks-nvim
+      #
+      #         ];
+      #
+      #         # man
+      #         programs.man.enable = true;
+      #         programs.man.generateCaches = false;
+      #
+      #         # zsh
+      #         programs.zsh.enable = true;
+      #         programs.zsh.dotDir = "${config.xdg.configHome}/zsh";
+      #         programs.zsh.envExtra = ''
+      #           GTK_IM_MODULE="fcitx"
+      #           QT_IM_MODULE="fcitx"
+      #           SDL_IM_MODULE="fcitx"
+      #           XMODIFIERS="@im=fcitx"
+      #         '';
+      #         programs.zsh.enableCompletion = true;
+      #         programs.zsh.autosuggestion.enable = true;
+      #         programs.zsh.syntaxHighlighting.enable = true;
+      #         programs.zsh.oh-my-zsh.enable = true;
+      #         programs.zsh.oh-my-zsh.extraConfig = ''
+      #           DISABLE_MAGIC_FUNCTIONS="true"
+      #         '';
+      #         programs.zsh.oh-my-zsh.plugins = [ "git" ];
+      #         programs.zsh.oh-my-zsh.theme = "spaceship";
+      #         programs.zsh.oh-my-zsh.custom = "$HOME/.zsh-custom";
+      #         home.file.".zsh-custom/themes/spaceship.zsh-theme".source =
+      #           "${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme";
+      #
+      #         # git
+      #         programs.git.enable = true;
+      #         programs.git.settings.user.name = "${user}";
+      #         programs.git.settings.user.email = "${email}";
+      #         programs.git.settings.extraConfig.safe.directory = "*";
+      #
+      #         # atuin
+      #         programs.atuin.enable = true;
+      #         programs.atuin.daemon.enable = true;
+      #         programs.atuin.enableBashIntegration = true;
+      #         programs.atuin.enableZshIntegration = true;
+      #
+      #       }
+      #     )
+      #   ];
+      # };
 
       nixosConfigurations.adoraos = nixpkgs.lib.nixosSystem {
 
@@ -346,11 +346,10 @@
                       };
                       luks = {
                         size = "100%";
-                        type = "luks";
                         # name = "disk-adoraos-luks";
                         content = {
                           type = "luks";
-                          name = "crypted";
+                          name = "crypted_adoraos";
                           extraFormatArgs = [ "--type luks1" ];
                           # passwordFile = "/tmp/pss.txt";
                           settings = {
