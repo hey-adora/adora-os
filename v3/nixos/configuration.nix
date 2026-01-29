@@ -16,7 +16,7 @@
   boot.kernel.sysctl."kernel.sysrq" = 1;
 
   boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/nbd0";
+  boot.loader.grub.device = "";
   boot.loader.grub.useOSProber = true;
   boot.loader.grub.enableCryptodisk = true;
   boot.loader.grub.efiSupport = true;
@@ -24,7 +24,7 @@
   boot.loader.efi.canTouchEfiVariables = false;
   boot.loader.efi.efiSysMountPoint = "/boot";
 
-  networking.hostName = "adora";
+  networking.hostName = "-pc";
   networking.networkmanager.enable = true;
 
   time.timeZone = "Europe/Amsterdam";
@@ -35,9 +35,10 @@
     keyMap = "us";
   };
 
-  users.users.hey = {
+  users.users.root.initialPassword = "";
+  users.users. = {
     isNormalUser = true;
-    initialPassword = "home";
+    initialPassword = "";
     extraGroups = [ "wheel" ]; 
     packages = with pkgs; [
       tree

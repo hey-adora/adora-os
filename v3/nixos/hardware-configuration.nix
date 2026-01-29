@@ -13,19 +13,6 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "/dev/mapper/crypted_adoraos";
-      fsType = "ext4";
-    };
-
-  boot.initrd.luks.devices."crypted_adoraos".device = "/dev/disk/by-uuid/3746de75-c5e6-453e-b0fa-e4b45a589b16";
-
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/01C2-24C9";
-      fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
-    };
-
   swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
