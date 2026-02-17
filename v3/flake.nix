@@ -53,11 +53,17 @@
               home.shellAliases."ll" = "eza -lhag";
               home.shell.enableShellIntegration = true;
               home.enableDebugInfo = false;
+              home.file.".local/share/applications/nix".source = config.lib.file.mkOutOfStoreSymlink "/home/${user}/.nix-profile/share/applications";
 
               home.stateVersion = "25.11";
               home.packages =
                 with pkgs;
                 [
+                  discord
+                  brave
+                  fastfetch
+
+
                   nixfmt
                   lua-language-server
 
@@ -140,6 +146,10 @@
               programs.man.generateCaches = false;
 
               # zsh
+              # programs.zsh.initContent = ''
+              #   fastfetch
+              # '';
+
               programs.zsh.enable = true;
               programs.zsh.dotDir = "${config.xdg.configHome}/zsh";
               programs.zsh.envExtra = ''
@@ -216,6 +226,8 @@
 
               zramSwap.enable = true;
               zramSwap.memoryPercent = 150;
+
+              programs.steam.enable = true;
 
               # hardware.nvidia.open = true;
               # hardware.nvidia.nvidiaSettings = true;
