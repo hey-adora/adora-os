@@ -140,7 +140,7 @@
 
                 main = {
                   type = "disk";
-                  device = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DNNJ0X204141J";
+                  device = "/dev/nvme0n1";
                   content = {
                     type = "gpt";
                     partitions = {
