@@ -136,7 +136,7 @@
 
                 main = {
                   type = "disk";
-                  device = "/dev/nvme0n1";
+                  device = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DHHJ0X204141J";
                   content = {
                     type = "gpt";
                     partitions = {
