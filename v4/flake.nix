@@ -1,8 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
-    home-manager.url = "github:nix-community/home-manager/release-26.05";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko/latest";
     disko.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -11,7 +9,6 @@
     {
       nixpkgs,
       disko,
-      home-manager,
       ...
     }@inputs:
     let
@@ -26,41 +23,6 @@
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit system inputs pkgs; };
-            home-manager.backupFileExtension = "old12";
-
-            home-manager.users.lyndonm = (
-              {
-                lib,
-                config,
-                nixpkgs,
-                pkgs,
-                system,
-                inputs,
-                ...
-              }:
-
-              {
-
-                programs.home-manager.enable = true;
-
-                home.username = "lyndonm";
-                home.homeDirectory = "/home/lyndonm";
-
-                programs.git.enable = true;
-
-                home.packages = with pkgs; [
-                  firefox
-                ];
-
-              }
-            );
-
-          }
           (
             {
               config,
@@ -93,7 +55,7 @@
               swapDevices = [
                 {
                   device = "/var/lib/swapfile";
-                  size = 32 * 1024;
+                  size = 10 * 1024;
                 }
               ];
 
@@ -102,12 +64,10 @@
               networking.hostName = "b650";
               networking.networkmanager.enable = true;
 
-              services.desktopManager.plasma6.enable = true;
-              services.displayManager.sddm.enable = true;
-
               programs.bash.enable = true;
 
-              time.timeZone = "NZ";
+
+              time.timeZone = "Europe/Berlin";
 
               i18n.defaultLocale = "en_US.UTF-8";
               i18n.extraLocales = [ "ja_JP.UTF-8/UTF-8" ];
@@ -119,11 +79,15 @@
               users.users.lyndonm = {
                 initialPassword = "home";
                 isNormalUser = true;
+                 extraGroups = [
+                  "wheel"
+                ];
                 shell = pkgs.bash;
               };
 
               environment.systemPackages = with pkgs; [
                 git
+                firefox
               ];
               system.stateVersion = "25.11";
 
@@ -133,10 +97,9 @@
           {
             disko.devices = {
               disk = {
-
                 main = {
-                  type = "disk";
                   device = "/dev/disk/by-id/nvme-Samsung_SSD_990_PRO_2TB_S7DHHJ0X204141J";
+                  type = "disk";
                   content = {
                     type = "gpt";
                     partitions = {
@@ -161,17 +124,12 @@
                     };
                   };
                 };
-
               };
             };
           }
         ];
       };
-      
+
 
     };
 }
-
-
-
-
