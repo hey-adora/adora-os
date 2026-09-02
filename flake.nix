@@ -1,8 +1,6 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
-    home-manager.url = "github:nix-community/home-manager/release-26.05";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko/latest";
     disko.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -11,7 +9,6 @@
     {
       nixpkgs,
       disko,
-      home-manager,
       ...
     }@inputs:
     let
@@ -22,49 +19,10 @@
     in
     {
 
-      nixosConfigurations.b650 = nixpkgs.lib.nixosSystem {
+      nixosConfigurations.myserver = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit inputs; };
         modules = [
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit system inputs pkgs; };
-            home-manager.backupFileExtension = "old12";
-
-            home-manager.users.lyndonm = (
-              {
-                lib,
-                config,
-                nixpkgs,
-                pkgs,
-                system,
-                inputs,
-                ...
-              }:
-
-              {
-
-                programs.home-manager.enable = true;
-
-                home.stateVersion = "25.11";
-
-                home.username = "lyndonm";
-                home.homeDirectory = "/home/lyndonm";
-
-                programs.git.enable = true;
-
-                home.packages = with pkgs; [
-                  firefox
-                ];
-
-
-
-              }
-            );
-
-          }
           (
             {
               config,
@@ -82,7 +40,7 @@
 
               nix.settings.experimental-features = "nix-command flakes";
               nix.settings.auto-optimise-store = true;
-              nix.settings.cores = 4;
+              #nix.settings.cores = 4;
 
               boot.kernelParams = [
                 "drm.panic_screen=qr_code"
@@ -97,37 +55,55 @@
               swapDevices = [
                 {
                   device = "/var/lib/swapfile";
-                  size = 32 * 1024;
+                  size = 10 * 1024;
                 }
               ];
 
               boot.loader.systemd-boot.enable = true;
 
-              networking.hostName = "b650";
+              networking.hostName = "myserver";
               networking.networkmanager.enable = true;
-
-              services.desktopManager.plasma6.enable = true;
-              services.displayManager.sddm.enable = true;
 
               programs.bash.enable = true;
 
-              time.timeZone = "NZ";
+
+              time.timeZone = "Europe/Berlin";
 
               i18n.defaultLocale = "en_US.UTF-8";
-              i18n.extraLocales = [ "ja_JP.UTF-8/UTF-8" ];
               console = {
                 font = "Lat2-Terminus16";
                 keyMap = "us";
               };
 
-              users.users.lyndonm = {
+              services.openssh = {
+                enable = true;
+                ports = [ 64999 ];
+                settings = {
+                  PasswordAuthentication = false;
+                  KbdInteractiveAuthentication = false;
+                  PermitRootLogin = "yes";
+                  AllowUsers = [
+                    "alice"
+                    "root"
+                  ];
+                };
+              };
+
+              users.users.alice = {
                 initialPassword = "home";
                 isNormalUser = true;
+                openssh.authorizedKeys.keys = [
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFcNLaEyw6ot4z6wQvEDZn1cVPE9i5ntHz0vw7QCAPqG adora@heyadora.com"
+                ];
+                extraGroups = [
+                  "wheel"
+                ];
                 shell = pkgs.bash;
               };
 
               environment.systemPackages = with pkgs; [
                 git
+                firefox
               ];
               system.stateVersion = "25.11";
 
@@ -137,10 +113,9 @@
           {
             disko.devices = {
               disk = {
-
                 main = {
+                  device = "/dev/vda";
                   type = "disk";
-                  device = "/dev/nvme0n1";
                   content = {
                     type = "gpt";
                     partitions = {
@@ -165,7 +140,6 @@
                     };
                   };
                 };
-
               };
             };
           }
@@ -175,7 +149,4 @@
 
     };
 }
-
-
-
 
